@@ -1,0 +1,62 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: steve
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    container_name: hackiton-app-php
+    environment:
+      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port = 9000 remote_enable=1
+    ports:
+      - 81:80
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./server:/var/www
+    networks:
+      - hackiton
+
+  db:
+    image: mysql:5.7
+    container_name: hackiton-db-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_PASSWORD: 123
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+    networks:
+      - hackiton
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: hackiton-db-mysql-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - 3307:80
+    volumes:
+      - ./docker-compose/mysql-phpmyadmin:/sessions
+    networks:
+      - hackiton
+  nginx:
+    image: nginx:alpine
+    container_name: hackiton-nginx-server
+    restart: unless-stopped
+    ports:
+      - 8001:80
+    volumes:
+      - ./server:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d
+    networks:
+      - hackiton
+networks:
+  hackiton:
+    driver: bridge

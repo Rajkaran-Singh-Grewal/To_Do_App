@@ -24,7 +24,7 @@ services:
     container_name: hackiton-db-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_DATABASE: laravel
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_PASSWORD: 123
